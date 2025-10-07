@@ -71,10 +71,40 @@ jobs:
           name: frontend-coverage
           path: front/coverage/
 
+  # SonarCloud Analysis
+  sonarcloud:
+    name: SonarCloud Analysis
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for better analysis
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: back/target/site/jacoco/
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: front/coverage/
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   # Resume actions
   pipeline-success:
-    name: Pipeline success
-    needs: [build-backend, build-frontend]
+    name: Pipeline Success
+    needs: [build-backend, build-frontend, sonarcloud]
     runs-on: ubuntu-latest
 
     steps:
@@ -83,3 +113,5 @@ jobs:
           echo "✅ Backend: Build & Tests passed"
           echo "✅ Frontend: Build & Tests passed"
           echo "✅ Coverage reports generated"
+          echo "✅ SonarCloud analysis completed"
+          echo "🎉 Pipeline completed successfully!"
