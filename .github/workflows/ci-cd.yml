@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - main
+      - develop
 
 jobs:
   # Build and Test Backend
@@ -51,6 +52,12 @@ jobs:
         with:
           name: backend-classes
           path: back/target/classes/
+
+      - name: Upload jacoco exec
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jacoco-exec
+          path: back/target/jacoco.exec
 
   # Build and Test Frontend
   build-frontend:
@@ -99,6 +106,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: "11"
+          distribution: "temurin"
+          cache: "maven"
+
       - name: Download backend coverage
         uses: actions/download-artifact@v4
         with:
@@ -111,13 +125,41 @@ jobs:
           name: backend-classes
           path: back/target/classes/
 
-      - name: SonarCloud Scan Backend
-        uses: SonarSource/sonarqube-scan-action@v6
+      - name: Download jacoco exec
+        uses: actions/download-artifact@v4
         with:
-          projectBaseDir: back/
+          name: backend-jacoco-exec
+          path: back/target/
+
+      # DEBUG
+      - name: Debug - List all files
+        run: |
+          echo "=== Structure complète de back/ ==="
+          ls -laR back/
+          echo ""
+          echo "=== Recherche de jacoco.xml ==="
+          find back/ -name "jacoco.xml" -type f
+          echo ""
+          echo "=== Recherche de *.exec ==="
+          find back/ -name "*.exec" -type f
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: SonarCloud Scan with Maven
+        run: |
+          cd back
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=hisarandre_P10_bob-app_back \
+            -Dsonar.organization=hisarandre \
+            -Dsonar.host.url=https://sonarcloud.io
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
-          SONAR_HOST_URL: https://sonarcloud.io
 
   # SonarCloud Analysis - Frontend
   sonarcloud-frontend:
@@ -136,6 +178,15 @@ jobs:
         with:
           name: frontend-coverage
           path: front/coverage/
+
+      # DEBUG
+      - name: Debug - List all files
+        run: |
+          echo "=== Structure complète de front/coverage/ ==="
+          ls -laR front/coverage/
+          echo ""
+          echo "=== Recherche de lcov.info ==="
+          find front/ -name "lcov.info" -type f
 
       - name: SonarCloud Scan Frontend
         uses: SonarSource/sonarqube-scan-action@v6
