@@ -1,10 +1,9 @@
 name: BobApp CI/CD
 
 on:
-  push:
-    branches: [develop, main]
-  pull_request:
-    branches: [main, develop]
+    pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 jobs:
   # Build and Test Backend
@@ -77,53 +76,75 @@ jobs:
           name: frontend-coverage
           path: front/coverage/
 
-  # SonarCloud Analysis
-  sonarcloud:
-    name: SonarCloud Analysis
-    needs: [build-backend, build-frontend]
-    runs-on: ubuntu-latest
+  # SonarCloud Analysis - Backend
+sonarcloud-backend:
+  name: SonarCloud Backend Analysis
+  needs: [build-backend]
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for better analysis
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
 
-      - name: Download backend coverage
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-coverage
-          path: back/target/site/jacoco/
+    - name: Download backend coverage
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-coverage
+        path: back/target/site/jacoco/
 
-      - name: Download backend compiled classes
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-classes
-          path: back/target/classes/
+    - name: Download backend compiled classes
+      uses: actions/download-artifact@v4
+      with:
+        name: backend-classes
+        path: back/target/classes/
 
-      - name: Download frontend coverage
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-coverage
-          path: front/coverage/
+    - name: SonarCloud Scan Backend
+      uses: SonarSource/sonarqube-scan-action@v6
+      with:
+        projectBaseDir: back/
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
+        SONAR_HOST_URL: https://sonarcloud.io
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v6
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
+# SonarCloud Analysis - Frontend
+sonarcloud-frontend:
+  name: SonarCloud Frontend Analysis
+  needs: [build-frontend]
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Download frontend coverage
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-coverage
+        path: front/coverage/
+
+    - name: SonarCloud Scan Frontend
+      uses: SonarSource/sonarqube-scan-action@v6
+      with:
+        projectBaseDir: front/
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONT }}
+        SONAR_HOST_URL: https://sonarcloud.io
 
   # Resume actions
   pipeline-success:
-    name: Pipeline Success
-    needs: [build-backend, build-frontend, sonarcloud]
-    runs-on: ubuntu-latest
+  name: Pipeline Success
+  needs: [build-backend, build-frontend, sonarcloud-backend, sonarcloud-frontend]
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: All tests passed
-        run: |
-          echo "✅ Backend: Build & Tests passed"
-          echo "✅ Frontend: Build & Tests passed"
-          echo "✅ Coverage reports generated"
-          echo "✅ SonarCloud analysis completed"
-          echo "🎉 Pipeline completed successfully!"
+  steps:
+    - name: All tests passed
+      run: |
+        echo "✅ Backend: Build & Tests passed"
+        echo "✅ Frontend: Build & Tests passed"
+        echo "✅ Coverage reports generated"
+        echo "✅ SonarCloud analysis completed (Backend & Frontend)"
+        echo "🎉 Pipeline completed successfully!"
