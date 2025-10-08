@@ -86,17 +86,6 @@ jobs:
           cd front
           npm run test -- --no-watch --code-coverage --browsers=ChromeHeadless
 
-      - name: Verify lcov.info exists
-        run: |
-          if [ -f front/coverage/bobapp/lcov.info ]; then
-            echo "✅ lcov.info trouvé !"
-            ls -lh front/coverage/bobapp/lcov.info
-          else
-            echo "❌ lcov.info NON trouvé !"
-            echo "Contenu de front/coverage/bobapp :"
-            ls -la front/coverage/bobapp/
-          fi
-
       - name: Upload frontend coverage
         uses: actions/upload-artifact@v4
         if: always()
@@ -177,17 +166,6 @@ jobs:
           name: frontend-coverage
           path: front/coverage/
 
-      - name: Verify lcov.info downloaded
-        run: |
-          echo "=== Vérification de lcov.info après download ==="
-          if [ -f front/coverage/bobapp/lcov.info ]; then
-            echo "✅ lcov.info présent !"
-            ls -lh front/coverage/bobapp/lcov.info
-          else
-            echo "❌ lcov.info manquant !"
-            ls -laR front/coverage/
-          fi
-
       - name: SonarCloud Scan Frontend
         uses: SonarSource/sonarqube-scan-action@v6
         with:
@@ -208,5 +186,5 @@ jobs:
           echo "✅ Backend: Build & Tests passed"
           echo "✅ Frontend: Build & Tests passed"
           echo "✅ Coverage reports generated"
-          echo "✅ SonarCloud analysis completed (Backend & Frontend)"
+          echo "✅ Quality check completed (Backend & Frontend)"
           echo "🎉 Pipeline completed successfully!"

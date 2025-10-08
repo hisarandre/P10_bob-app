@@ -15,7 +15,10 @@
 	<description>L'application de joke par excellence !</description>
 	<properties>
 		<java.version>11</java.version>
+		<sonar.projectKey>hisarandre_P10_bob-app_back</sonar.projectKey>
+		<sonar.projectName>bobapp-back</sonar.projectName>
 		<sonar.organization>hisarandre</sonar.organization>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 	<dependencies>
 		<dependency>
