@@ -24,10 +24,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: "11"
+          java-version: "17"
           distribution: "temurin"
           cache: "maven"
 
@@ -52,6 +52,12 @@ jobs:
           name: backend-classes
           path: back/target/classes/
 
+      - name: Upload jacoco exec
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jacoco-exec
+          path: back/target/jacoco.exec
+
   # Build and Test Frontend
   build-frontend:
     name: Frontend - Build & Test
@@ -75,10 +81,21 @@ jobs:
           cd front
           npm ci
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
           cd front
-          npm run test -- --watch=false --browsers=ChromeHeadless --code-coverage
+          npm run test -- --no-watch --code-coverage --browsers=ChromeHeadless
+
+      - name: Verify lcov.info exists
+        run: |
+          if [ -f front/coverage/bobapp/lcov.info ]; then
+            echo "✅ lcov.info trouvé !"
+            ls -lh front/coverage/bobapp/lcov.info
+          else
+            echo "❌ lcov.info NON trouvé !"
+            echo "Contenu de front/coverage/bobapp :"
+            ls -la front/coverage/bobapp/
+          fi
 
       - name: Upload frontend coverage
         uses: actions/upload-artifact@v4
@@ -87,9 +104,9 @@ jobs:
           name: frontend-coverage
           path: front/coverage/
 
-  # SonarCloud Analysis - Backend
+  # SonarCloud - Backend
   sonarcloud-backend:
-    name: SonarCloud Backend Analysis
+    name: SonarCloud Backend - Quality check
     needs: [build-backend]
     runs-on: ubuntu-latest
 
@@ -98,6 +115,13 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
 
       - name: Download backend coverage
         uses: actions/download-artifact@v4
@@ -111,17 +135,33 @@ jobs:
           name: backend-classes
           path: back/target/classes/
 
-      - name: SonarCloud Scan Backend
-        uses: SonarSource/sonarqube-scan-action@v6
+      - name: Download jacoco exec
+        uses: actions/download-artifact@v4
         with:
-          projectBaseDir: back/
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
-          SONAR_HOST_URL: https://sonarcloud.io
+          name: backend-jacoco-exec
+          path: back/target/
 
-  # SonarCloud Analysis - Frontend
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: SonarCloud Scan with Maven
+        run: |
+          cd back
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=hisarandre_P10_bob-app_back \
+            -Dsonar.organization=hisarandre \
+            -Dsonar.host.url=https://sonarcloud.io
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
+
+  # SonarCloud - Frontend
   sonarcloud-frontend:
-    name: SonarCloud Frontend Analysis
+    name: SonarCloud Frontend - Quality check
     needs: [build-frontend]
     runs-on: ubuntu-latest
 
@@ -137,6 +177,17 @@ jobs:
           name: frontend-coverage
           path: front/coverage/
 
+      - name: Verify lcov.info downloaded
+        run: |
+          echo "=== Vérification de lcov.info après download ==="
+          if [ -f front/coverage/bobapp/lcov.info ]; then
+            echo "✅ lcov.info présent !"
+            ls -lh front/coverage/bobapp/lcov.info
+          else
+            echo "❌ lcov.info manquant !"
+            ls -laR front/coverage/
+          fi
+
       - name: SonarCloud Scan Frontend
         uses: SonarSource/sonarqube-scan-action@v6
         with:
@@ -146,8 +197,8 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
 
   # Resume actions
-  pipeline-success:
-    name: Pipeline Success
+  resume-success:
+    name: Resume Success
     needs: [build-backend, build-frontend, sonarcloud-backend, sonarcloud-frontend]
     runs-on: ubuntu-latest
 
