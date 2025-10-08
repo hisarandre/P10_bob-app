@@ -13,7 +13,10 @@ on:
       - main
 
 jobs:
-  # Build and Test Backend
+  # ================================
+  # Backend - Build & Test
+  # ================================
+
   build-backend:
     name: Backend - Build & Test
     runs-on: ubuntu-latest
@@ -40,25 +43,18 @@ jobs:
       - name: Generate JaCoCo Report
         run: mvn jacoco:report --file back/pom.xml
 
-      - name: Upload backend coverage
+      - name: Upload backend data
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
-          path: back/target/site/jacoco/
+          path: |
+            back/target/classes/
+            back/target/jacoco.exec
+            back/target/site/jacoco/
 
-      - name: Upload compiled classes
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-classes
-          path: back/target/classes/
-
-      - name: Upload jacoco exec
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-jacoco-exec
-          path: back/target/jacoco.exec
-
-  # Build and Test Frontend
+  # ================================
+  # Frontend - Build & Test
+  # ================================
   build-frontend:
     name: Frontend - Build & Test
     runs-on: ubuntu-latest
@@ -93,7 +89,9 @@ jobs:
           name: frontend-coverage
           path: front/coverage/
 
-  # SonarCloud - Backend
+  # ================================
+  # Sonarcloud - Backend
+  # ================================
   sonarcloud-backend:
     name: SonarCloud Backend - Quality check
     needs: [build-backend]
@@ -112,22 +110,10 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      - name: Download backend coverage
+      - name: Download backend data
         uses: actions/download-artifact@v4
         with:
           name: backend-coverage
-          path: back/target/site/jacoco/
-
-      - name: Download backend compiled classes
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-classes
-          path: back/target/classes/
-
-      - name: Download jacoco exec
-        uses: actions/download-artifact@v4
-        with:
-          name: backend-jacoco-exec
           path: back/target/
 
       - name: Cache SonarCloud packages
@@ -148,7 +134,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
 
-  # SonarCloud - Frontend
+  # ================================
+  # Sonarcloud - frontend
+  # ================================
   sonarcloud-frontend:
     name: SonarCloud Frontend - Quality check
     needs: [build-frontend]
@@ -174,7 +162,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONT }}
           SONAR_HOST_URL: https://sonarcloud.io
 
-  # Resume actions
+  # ================================
+  # Rasume
+  # ================================
   resume-success:
     name: Resume Success
     needs: [build-backend, build-frontend, sonarcloud-backend, sonarcloud-frontend]
