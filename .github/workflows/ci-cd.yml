@@ -206,7 +206,7 @@ jobs:
   # ================================
   resume-success:
     name: Resume Success
-    needs: [build-backend, build-frontend, sonarcloud-backend, sonarcloud-frontend, push-docker]
+    needs: [push-docker]
     runs-on: ubuntu-latest
 
     steps:
