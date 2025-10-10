@@ -23,19 +23,4 @@ public class JokeService {
         int randomIndex = generator.nextInt(jokes.size());
         return jokes.get(randomIndex);
     }
-
-    // nouvelle méthode sans tests
-    public void newUncoveredMethod() {
-        System.out.println("This is not tested");
-        if (true) {
-            System.out.println("Complex logic");
-        }
-    }
-
-    // Code smell / bug détecté par SonarCloud
-    public void badCode() {
-        String password = "hardcoded_password";
-        if (password == "test") {
-        }
-    }
 }
