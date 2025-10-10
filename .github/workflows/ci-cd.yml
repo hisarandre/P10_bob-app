@@ -11,7 +11,6 @@ on:
   push:
     branches:
       - main
-      - develop
 
 jobs:
   # ================================
@@ -129,7 +128,8 @@ jobs:
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=hisarandre_P10_bob-app_back \
             -Dsonar.organization=hisarandre \
-            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.qualitygate.wait=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_BACK }}
@@ -158,6 +158,8 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v6
         with:
           projectBaseDir: front/
+          args: >
+            -Dsonar.qualitygate.wait=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_FRONT }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -190,7 +192,6 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-back:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-back:${{ github.sha }}
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v6
@@ -199,7 +200,6 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-front:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/bobapp-front:${{ github.sha }}
 
   # ================================
   # Resume
@@ -217,4 +217,4 @@ jobs:
           echo "✅ Coverage reports generated"
           echo "✅ Quality check completed (Backend & Frontend)"
           echo "✅ Docker images pushed to Docker Hub"
-          echo "🎉 CI/CD Pipeline completed successfully!"
+          echo "CI/CD completed successfully!"
