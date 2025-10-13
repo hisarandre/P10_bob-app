@@ -10,7 +10,7 @@ import com.openclassrooms.bobapp.model.Joke;
 
 @Service
 public class JokeService {
-    
+
     private final JsonReader jsonReader;
 
     JokeService(JsonReader jsonReader) {
