@@ -76,7 +76,7 @@ You can check the code quality and coverage here :
 
 ## 🛠️ Technologies
 
-- Java 11
+- Java 17
 - Maven 3.6+
 - Node.js 16+
 - npm 8+
@@ -105,20 +105,6 @@ Launch Front-end:
 
 > npm run start;
 
-### Docker
-
-Build the container:
-
-> docker build -t bobapp-front .
-
-Start the container:
-
-> docker run -p 8080:8080 --name bobapp-front -d bobapp-front
-
-OR you can run the latest Docker image from Docker Hub:
-
-> docker run -p 8080:8080 --name bobapp-front -d sarandre/bobapp-front:latest
-
 ## Back-end
 
 Go inside folder the back folder:
@@ -137,16 +123,13 @@ Launch the tests:
 
 > mvn clean install
 
-### Docker
+## Docker
 
-Build the container:
+Update the images:
 
-> docker build -t bobapp-back .
+> docker pull sarandre/bobapp-back:latest
+> docker pull sarandre/bobapp-front:latest
 
 Start the container:
 
-> docker run -p 8080:8080 --name bobapp-back -d bobapp-back
-
-OR you can run the latest Docker image from Docker Hub:
-
-> docker run -p 8080:8080 --name bobapp-back -d sarandre/bobapp-back:latest
+> docker compose up -d

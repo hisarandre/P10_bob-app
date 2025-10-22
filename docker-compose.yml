@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - appnet
+      - bobapp
 
   front:
     image: sarandre/bobapp-front:latest
@@ -17,8 +17,8 @@ services:
     depends_on:
       - back
     networks:
-      - appnet
+      - bobapp
 
 networks:
-  appnet:
+  bobapp:
     driver: bridge
