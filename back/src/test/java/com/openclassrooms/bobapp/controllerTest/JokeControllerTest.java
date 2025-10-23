@@ -36,7 +36,7 @@ class JokeControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.joke", is("Why did the developer go broke?")))
+                .andExpect(jsonPath("$.question", is("Why did the developer go broke?")))
                 .andExpect(jsonPath("$.response", is("Because he used up all his cache!")));
 
         verify(jokeService, times(1)).getRandomJoke();
@@ -65,7 +65,7 @@ class JokeControllerTest {
 
         mockMvc.perform(get("/api/joke"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.joke").exists())
+                .andExpect(jsonPath("$.question").exists())
                 .andExpect(jsonPath("$.response").exists());
     }
 
@@ -80,12 +80,12 @@ class JokeControllerTest {
 
         mockMvc.perform(get("/api/joke"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.joke", is("First question?")))
+                .andExpect(jsonPath("$.question", is("First question?")))
                 .andExpect(jsonPath("$.response", is("First answer")));
 
         mockMvc.perform(get("/api/joke"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.joke", is("Second question?")))
+                .andExpect(jsonPath("$.question", is("Second question?")))
                 .andExpect(jsonPath("$.response", is("Second answer")));
 
         verify(jokeService, times(2)).getRandomJoke();
