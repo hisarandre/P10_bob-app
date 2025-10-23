@@ -13,7 +13,7 @@ public class JokeService {
 
     private final JsonReader jsonReader;
 
-    JokeService(JsonReader jsonReader) {
+    public JokeService(JsonReader jsonReader) {
         this.jsonReader = jsonReader;
     }
 

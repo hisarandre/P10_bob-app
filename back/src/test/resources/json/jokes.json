@@ -1,0 +1,12 @@
+{
+  "jokes": [
+    {
+      "joke": "Why did the chicken cross the road?",
+      "response": "To get to the other side!"
+    },
+    {
+      "joke": "What do you call a bear with no teeth?",
+      "response": "A gummy bear!"
+    }
+  ]
+}

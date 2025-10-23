@@ -1,5 +1,6 @@
 package com.openclassrooms.bobapp.controller;
 
+import com.openclassrooms.bobapp.model.Joke;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +18,8 @@ public class JokeController {
         this.jokeService = jokeService;
     }
 
-    @GetMapping()
-    public ResponseEntity<?> getRandomJokes() {
+    @GetMapping
+    public ResponseEntity<Joke> getRandomJokes() {
         return ResponseEntity.ok(this.jokeService.getRandomJoke());
     }
 }
