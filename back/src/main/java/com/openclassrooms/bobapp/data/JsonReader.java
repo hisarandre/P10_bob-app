@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -17,7 +15,6 @@ import com.openclassrooms.bobapp.model.Joke;
 @Repository
 public class JsonReader {
 
-    private static final Logger logger = LoggerFactory.getLogger(JsonReader.class);
     private final ObjectMapper mapper = new ObjectMapper();
     private JsonNode jsonFile;
 
