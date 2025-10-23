@@ -21,7 +21,7 @@ class JsonReaderTest {
         assertFalse(jokes.isEmpty());
 
         Joke firstJoke = jokes.get(0);
-        assertNotNull(firstJoke.getJoke());
+        assertNotNull(firstJoke.getQuestion());
         assertNotNull(firstJoke.getResponse());
     }
 
@@ -37,7 +37,7 @@ class JsonReaderTest {
     }
 
     @Test
-    void shouldThrowIllegalStateException_WhenJsonFileIsCorrupted() throws Exception {
+    void shouldThrowIllegalStateException_WhenJsonFileIsCorrupted(){
         // Act & Assert
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,

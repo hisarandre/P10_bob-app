@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,11 +25,13 @@ public class JsonReader {
         try {
             getJsonFile(resourcePath);
         } catch (IOException e) {
-            logger.error("Failed to load jokes from JSON file", e);
-            throw new IllegalStateException("Unable to initialize JsonReader: jokes.json could not be loaded", e);
+            throw new IllegalStateException(
+                    "Unable to initialize JsonReader: failed to load " + resourcePath, e
+            );
         }
     }
 
+    @Autowired
     public JsonReader() {
         this("json/jokes.json");
     }
