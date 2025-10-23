@@ -8,6 +8,7 @@ class BobappApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// test if the context start
 	}
 
 }

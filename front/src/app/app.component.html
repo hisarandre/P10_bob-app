@@ -7,7 +7,7 @@
     <mat-card-title>La blague du jour</mat-card-title>
     <mat-card-content>
       <div class="content" *ngIf="(joke$ | async) as joke">
-        <p class="joke">{{ joke.joke }}</p>
+        <p class="joke">{{ joke.question }}</p>
         <p >{{ joke.response }}</p>
       </div>
     </mat-card-content>
