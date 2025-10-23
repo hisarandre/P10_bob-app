@@ -20,21 +20,17 @@ public class JsonReader {
     private final ObjectMapper mapper = new ObjectMapper();
     private JsonNode jsonFile;
 
-    public JsonReader() {
+    JsonReader(String resourcePath) {
         try {
-            this.getJsonFile();
+            getJsonFile(resourcePath);
         } catch (IOException e) {
             logger.error("Failed to load jokes from JSON file", e);
             throw new IllegalStateException("Unable to initialize JsonReader: jokes.json could not be loaded", e);
         }
     }
 
-    private static class SingletonHolder {
-        private final static JsonReader instance = new JsonReader();
-    }
-
-    public static JsonReader getInstance() {
-        return SingletonHolder.instance;
+    public JsonReader() {
+        this("json/jokes.json");
     }
 
     public List<Joke> getJokes() {
@@ -43,9 +39,9 @@ public class JsonReader {
         return Arrays.asList(jokes);
     }
 
-    private void getJsonFile() throws IOException {
+    private void getJsonFile(String resourcePath) throws IOException {
         if (this.jsonFile == null) {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("json/jokes.json");
+            InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath);
             if (is == null) {
                 throw new IllegalArgumentException("file not found!");
             } else {
